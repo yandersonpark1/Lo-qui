@@ -13,16 +13,24 @@ Week 12:
 Setup Project with Rust using Cargo 
 Review and learn about Tokio, Axum, and other rust crates that may help with async calls and websocket routing 
 Examine overall Architecture
+
+
 Week 13: 
 Implement REST endpoints in Rust for message history and link to MongoDB / database 
 Build initial websocket for single user to send message 
 Status Update will be on 12/01 Monday of Week 14 at this point we should have initial users able to send messages to one another (not necessarily worried about concurrency)
+
+
 Week 14: 
 Extend server to handle multiple concurrent clients 
 Make sure backend is capable of handling messages sent back and forth between users 
+
+
 Week 15: 
 Continue work for Week 14
 Configure frontend to backend 
+
+
 Exam Period / Reading Period: 
 Any bug fixes
 Add comments to code explaining 
