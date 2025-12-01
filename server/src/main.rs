@@ -3,6 +3,8 @@ use sqlx::Row;
 use crate::Result;
 use std::collections::HashSet;
 use rand::Rng;
+use axum::{routing::{get, post},  Router};
+
 
 #[derive(Debug)]
 struct Message {
@@ -52,11 +54,19 @@ impl user {
     }
 }
 
+fn post_method(content:String, ) -> Result<(), Box<dyn Error>> {
+
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let url = env::var("DATABASE_URL").unwrap();
     let pool = sqlx::postgres::PgPool::connect(url).await?;
     sqlx::migrate!("./migrations").run(&pool).await?;
+
+    ///creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
+    let app = router::<()>::new().route(); 
+
 
     Ok(())
 }
