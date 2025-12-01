@@ -1,12 +1,56 @@
 use std::error::Error;
 use sqlx::Row;
+use crate::Result;
+use std::collections::HashSet;
+use rand::Rng;
 
+#[derive(Debug)]
 struct Message {
-    usernam: String,
+    usernam: user,
     content: String,
     created_at: String,
 }
 
+// Struct Defining Users Present
+#[derive(Debug)]
+struct user {
+    unique_id: i32,
+    pub name: String,
+}
+
+//Active Users Defined as a Hashset
+let mut activeusers = HashSet<i32>;
+
+impl user {
+    pub fn new(username: String) -> Result<Self> {
+        let mut rng = rand::rng();
+        let mut userid: i32 = rng.random();
+
+        //If the randomly selected ID is already taken, rerandomize
+        while activeusers.contains(userid) {
+            userid = rng.random();
+        }
+
+        //Add to list of users present
+        activeusers.insert(userid);
+
+        //Return self
+        Ok(Self {
+            unique_id: userid;
+            name: username;
+        })
+    }
+
+    //Return self name
+    pub fn get_name() -> Result<String> {
+        Ok(Self.name)
+    }
+
+    //Return self ID
+    pub fn get_id() -> Result<i32> {
+        Ok(Self.unique_id)
+    }
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -15,4 +59,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+
+    #[test]
+    fn create_user() {
+        let username = "UserA".to_string();
+        let user = username::new(username);
+        assert_eq!(
+            user.get_name(), "UserA".to_string()
+        )
+
+    }
 }
