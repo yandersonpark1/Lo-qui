@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use rand::Rng;
 use axum::{routing::{get, post},  Router};
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug)]
 struct Message {
@@ -22,10 +22,10 @@ struct user {
 }
 
 //Active Users Defined as a Hashset
-let mut activeusers = HashSet<i32>;
+static mut activeusers: HashSet<i32> = HashSet::<i32>;
 
 impl user {
-    pub fn new(username: String) -> Result<Self> {
+    pub fn new(username: String) -> SimpleResult<Self> {
         let mut rng = rand::rng();
         let mut userid: i32 = rng.random();
 
@@ -45,12 +45,12 @@ impl user {
     }
 
     //Return self name
-    pub fn get_name() -> Result<String> {
+    pub fn get_name() -> SimpleResult<String> {
         Ok(Self.name)
     }
 
     //Return self ID
-    pub fn get_id() -> Result<i32> {
+    pub fn get_id() -> SimpleResult<i32> {
         Ok(Self.unique_id)
     }
 }
@@ -81,7 +81,15 @@ mod test {
         let user = username::new(username);
         assert_eq!(
             user.get_name(), "UserA".to_string()
-        )
+        );
+    }
 
+    #[test]
+    fn hashset_push() {
+        let username = "UserA".to_string();
+        let user = username::new(username);
+        assert!(
+            activeusers.contains(user)
+        );
     }
 }
