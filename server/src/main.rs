@@ -5,6 +5,7 @@ use std::collections::HashSet;
 use rand::Rng;
 use axum::{routing::{get, post},  Router};
 
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug)]
 struct Message {
