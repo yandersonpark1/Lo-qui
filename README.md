@@ -50,3 +50,17 @@ Add comments to code explaining
 Final Report 
 
 Practice Presentation/Demo 
+
+
+
+
+
+
+Status Update: Update for 12/01 
+Database: postgressql instead of NoSQL
+    - Table will follow | id | username_id | username | content | created_at 
+
+We are planning to do a single chat room as proof of concept instead of a real time web chat application supporting 
+a multide of people and rooms. This chat room will be where people can connect and chat with anyone else in the room after syncing. 
+The main workthroughs and struggles right now are understanding the different libraries and dependencies and how to implement our HTTP methods with Rust. We were initially quite ambitious thinking about websockets and scale, but for the sake of time, we will be instead using CRUD APIs to send our messages between the client and server. This will also trim down the implementation of scale without having to worry about networks. The main thing we are working through right now are creating the post and read methods because they are the most essential for this project, and then afterwards we're going to create an implementation of update and delete methods which we are discussing as we are using one table for our database. Right now we are working through the routing for the front end and backend to connect. Essentially our architeture will follow as the frontend where the user enters a chat room and sees the messages and other chatters. They can then type messages and send them to the backend using the put request following a UI click and then into the database that we have following the row structure. We are mainly on track as most of the actual work was to be completed in the following weeks, but we just wanted to make sure 
+we had the correct architeture for the proposed project. We also have been reading through the docs for routing so actually writing the code should make more sense. The next couple weeks will be coding and implementing this arch. and the actual project's backend and routing. 
