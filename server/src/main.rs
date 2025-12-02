@@ -1,9 +1,10 @@
 use std::error::Error;
 use sqlx::Row;
-use crate::Result;
 use std::collections::HashSet;
 use rand::Rng;
 use axum::{routing::{get, post},  Router};
+
+mod get;
 
 type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -58,6 +59,7 @@ impl user {
 fn post_method(content:String, ) -> Result<(), Box<dyn Error>> {
 
 }
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
