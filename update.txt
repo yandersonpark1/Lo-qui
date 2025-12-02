@@ -1,0 +1,13 @@
+Update for 12/01 
+Database: postgressql instead of NoSQL
+    - Table will follow | id | username_id | username | content | created_at 
+
+Updated: 
+We are planning to do a chat room instead where people can connect and then chat with anyone in the room after syncing. The main workthroughs and struggles right now are understanding the different libraries
+and dependencies and how to implement our HTTP methods. We were initially quite ambitious thinking about websockets and scale, but for the sake of time, we will be instead using CRUD APIs to send our messages
+in this chat room between users. The main thing we are working through right now are creating the post and read methods because they are the most essential for this project, and then afterwards we're going to 
+create an implementation of update and delete methods which we are still discussing considering we don't have a user table unlike most chat applications. Right now we are working through the routing for the front end 
+and backend to connect. Essentially our architeture will follow as the frontend where the user enters a chat room and sees the messages and other chatters. They can then type messages and send them to the backend 
+using the put request and then into the database that we have following the row structure. We are mainly on track as most of the actual work was to be completed in the following weeks, but we just wanted to make sure 
+we had the correct architeture for the proposed project. We also have been reading through the docs for routing so actually writing the code should make more sense. The next couple weeks will be coding and implementing 
+the actual project's backend and routing. 
