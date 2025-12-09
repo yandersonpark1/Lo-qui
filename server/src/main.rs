@@ -69,6 +69,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     ///creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
     let app = router::<()>::new().route(); 
+        .route("/health", get(health_check))
+        .route("/users", get(list_users))
+        .route("/users/{id}", get(get_user))
+        .route("/messages", get(move |mid| message_history(mid)))
+        .with_state(pool);
 
 
     Ok(())
