@@ -10,7 +10,7 @@ type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug)]
 struct Message {
-    usernam: user,
+    username: user,
     content: String,
     created_at: String,
 }
