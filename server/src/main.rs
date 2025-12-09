@@ -1,9 +1,13 @@
 use std::error::Error;
 use sqlx::Row;
+use sqlx::postgres;
+
 use std::collections::HashSet;
 use rand::Rng;
+
 use axum::{routing::{get, post},  Router};
 
+use sqlx::postgres;
 mod get;
 
 type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -60,15 +64,19 @@ fn post_method(content:String, ) -> Result<(), Box<dyn Error>> {
 
 }
 
-
+/// taken from https://github.com/launchbadge/sqlx
+/// sqlx is used to manager our database 
+/// axum is working for our https method communicating between the backend and the database
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), sqlx::Error>> {
     let url = env::var("DATABASE_URL").unwrap();
-    let pool = sqlx::postgres::PgPool::connect(url).await?;
+    
+    let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).context("Unable to connect to the database")?;
+    
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     ///creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
-    let app = router::<()>::new().route(); 
+    let app = Router::new().route().with_state(&pool).route("/health". get())
         .route("/health", get(health_check))
         .route("/users", get(list_users))
         .route("/users/{id}", get(get_user))
