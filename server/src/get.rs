@@ -39,11 +39,11 @@ async fn health_check() -> impl IntoResponse {
     }))
 }
 
-// Returns a Json containing the users present
-async fn user_list(userlist: String, Path) -> Result<Json<Value>, ApiError> {
-    Json(json!({
-        "Current users": todo!();
-    }))
+// Returns a Vector containing the users present in rows
+async fn user_list(app: Router) -> Result<Vec<Row>, ApiError> {
+    let result = sqlx::query(&app).fetch_all().await.unwrap();
+    result
+    // returns the vector of all users
 }
 
 // Returns a Json containing full message history
