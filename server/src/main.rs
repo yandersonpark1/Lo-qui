@@ -13,17 +13,24 @@ mod get;
 type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug)]
-struct Message {
-    username: user,
-    content: String,
-    created_at: String,
+pub struct Message {
+    pub user: User.unique_id
+    pub username: User.name
+    pub content: String,
+    pub created_at: String,
 }
 
 // Struct Defining Users Present
 #[derive(Debug)]
-struct user {
+struct User {
     unique_id: i32,
     pub name: String,
+}
+
+/// struct for connection state for api methods
+#[derive(Debug)]
+struct ConnectionState {
+    pub db: PgPoolOptions,  
 }
 
 //Active Users Defined as a Hashset
@@ -60,13 +67,11 @@ impl user {
     }
 }
 
-fn post_method(content:String, ) -> Result<(), Box<dyn Error>> {
-
-}
 
 /// taken from https://github.com/launchbadge/sqlx
 /// sqlx is used to manager our database 
 /// axum is working for our https method communicating between the backend and the database
+/// connects to database and creates our router
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error>> {
     let url = env::var("DATABASE_URL").unwrap();
@@ -76,16 +81,22 @@ async fn main() -> Result<(), sqlx::Error>> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     ///creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
-    let app = Router::new().route().with_state(&pool).route("/health". get())
+    let app = Router::new().route().with_state(&pool)
         .route("/health", get(health_check))
+        /// may only need this route for post and get 
+        .route("/messages", post(message).get(message))
         .route("/users", get(list_users))
         .route("/users/{id}", get(get_user))
-        .route("/messages", get(move |mid| message_history(mid)))
-        .with_state(pool);
+        // .route("/messages", get(move |mid| message_history(mid)))
+        .with_state(&pool);
+
+    let state = ConnectionState{db: &pool}
 
 
     Ok(())
 }
+
+
 
 #[cfg(test)]
 mod test {
