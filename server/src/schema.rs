@@ -23,18 +23,20 @@ pub struct InitUser {
 /// Get Schema
 #[derive(Debug, Serialize)]
 pub struct Message {
-    pub user_id: i32,
-    pub username: String, 
+    // for get method we may just be returning message?
+
+    // pub user_id: i32,
+    // pub username: String, 
     pub content: String,
-    pub created_at: String,
+    // pub created_at: String,
 }
 
 
 ///Respresents Json message from frontend to put/post into backend
 #[derive(Debug, Deserialize)]
 pub struct InitMessage {
-    pub user_id: i32, 
+    // pub id: i32, 
     pub username: String, 
     pub content: String, 
-    pub created_at: String, 
+    // pub created_at: Option<String>,
 }

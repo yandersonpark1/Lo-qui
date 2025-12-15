@@ -1,15 +1,20 @@
-use std::error::Error;
-use sqlx::{Row, PgPool};
-use sqlx::postgres;
+use sqlx::{PgPool};
+// use sqlx::postgres;
 
+use dotenv::dotenv;
+use std::env;
 
-use axum::{routing::{get, post},  Router};
+use axum::{routing::{post},  Router};
+
 
 mod routes;
-use routes::{get, post};
+use routes::{post::post_method};
+
+//readd for get get::get_method,
+
 mod schema;
 
-type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+// type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 
 /// struct for connection state pool for api methods
@@ -18,16 +23,24 @@ struct ConnectionState {
     pub db: PgPool,
 }
 
+
 /// taken from https://github.com/launchbadge/sqlx
 /// sqlx is used to manager our database 
 /// axum is working for our https method communicating between the backend and the database
 /// connects to database and creates our router
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
+    dotenv().ok();
+
     let url = env::var("DATABASE_URL").unwrap();
     
     // for startup 
     let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).await?;
+
+    // check for connection
+    // sqlx::query("Select 1").execute(&pool).await?;
+
+    // println!("Database connection good");
     
     sqlx::migrate!("./migrations").run(&pool).await?;
 
@@ -35,15 +48,17 @@ async fn main() -> Result<(), sqlx::Error> {
     let state = ConnectionState{db: pool.clone()};
 
     //creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
-    let app = Router::new().route("/health", get(health_check))
+    let app = Router::new()
+        // .route("/health", get(health_check))
         // may only need this route for post and get 
-        .route("/messages", post(create_message).get(get_all_messages))
+        .route("/messages", post(post_method))
+        // .get(get_method))
         .with_state(pool.clone());
 
     //to run the server
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
-    println!("Server running on http://0.0.0.0:3000");
-    axum::serve(listener, app).await?;
+    axum::Server::bind(&"0.0.0.0:3000".parse()
+        .unwrap()).serve(app.into_make_service()).await.unwrap();
 
     Ok(())
+
 }
