@@ -13,8 +13,8 @@ use crate::{schema::{User, Message}};
 
 
 
-pub async fn post(State(pool): State<Pool>, Json(message): Json<Message>) -> Json<Message> {
-    let message = query!(#what we want to query).fetch_all(&ConnectionState.db).await().unwrap();
+pub async fn get(State(pool): State<Pool>, Json(message): Json<Message>) -> Json<Message> {
+    let message = query!("SELECT * FROM messages ORDER BY created_at DESC").fetch_all(&ConnectionState.db).await().unwrap();
 
     Json(message)
 }
