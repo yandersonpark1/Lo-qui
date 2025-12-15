@@ -1,12 +1,13 @@
 use std::error::Error;
 use sqlx::{Row, PgPool};
 use sqlx::postgres;
-use sqlx::PgPool;
+
 
 use axum::{routing::{get, post},  Router};
 
 mod get;
-mod post;
+mod routes;
+mod schema;
 
 type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
