@@ -1,8 +1,15 @@
 use crate::SimpleResult;
-use axum::{Router, response::IntoResponse, routing::get};
-use sqlx::Row;
-
-// Followed the structure found at https://www.youtube.com/watch?v=FDWKlJmHv6k
+use axum::{
+    Router, 
+    response::IntoResponse, 
+    routing::get,
+    extract::{Path, State},
+    Json,
+    http::StatusCode,
+};
+use serde_json::{json, Value};
+use sqlx::{Pool, Postgres, Row};
+use std::sync::Arc;
 
 #[derive(Debug)]
 enum ApiError {
@@ -31,7 +38,11 @@ impl IntoResponse for ApiError {
     }
 }
 
-// Does a simple check on if the server is running properly. Otherwise, return an error
+#[derive(Clone)]
+struct AppState {
+    db: Pool<Postgres>,
+}
+
 async fn health_check() -> impl IntoResponse {
     Json(json!({
         "status": "ok",
@@ -39,29 +50,30 @@ async fn health_check() -> impl IntoResponse {
     }))
 }
 
-// Returns a Vector containing the users present in rows
-async fn user_list(app: Router) -> Result<Vec<Row>, ApiError> {
-    let result = sqlx::query(&app).fetch_all().await.unwrap();
-    result
-    // returns the vector of all users
+// GET all messages
+async fn get_all_messages(State(state): State<Arc<AppState>>) -> Result<Json<Value>, ApiError> {
+    let rows = sqlx::query("SELECT * FROM messages ORDER BY created_at DESC")
+        .fetch_all(&state.db)
+        .await
+        .map_err(|_| ApiError::InternalErr)?;
+    
+    let messages: Vec<Value> = rows.iter().map(|row| {
+        json!({
+            "id": row.get::<i32, _>("id"),
+            "username": row.get::<String, _> ("username"),
+            "content": row.get::<String, _>("content"),
+            "created_at": row.get::<chrono::NaiveDateTime, _>("created_at"),
+        })
+    }).collect();
+
+    Ok(Json(json!({ "messages": messages })))
 }
 
-// Returns a Json containing full message history
-async fn message_history(mid: u32, app: Router) -> Result<Row, ApiError> {
-    let result = sqlx::query(&app).fetch_one(mid).await.unwrap();
-    result
-    // returns a whole message line of mid
-}
-
-// Returns a user with the given id 
-async fn get_user(Path(id): Path<u32>) -> Result<Json<Value>, ApiError> {
-    if id > 100 {
-        return Err(ApiError::NotFound);
-    }
-
-    Ok(Json(json!({"id": id, "name": "User"})))
-}
-
-pub fn get_router(router: Router) -> String {
-    router.route("/health", get(health_check))
+pub fn get_router(db: Pool<Postgres>) -> Router {
+    let state = Arc::new(AppState { db });
+    
+    Router::new()
+        .route("/health", get(health_check))
+        .route("/messages", get(get_all_messages))
+        .with_state(state)
 }
