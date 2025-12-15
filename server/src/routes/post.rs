@@ -28,6 +28,7 @@ pub async fn post(State(pool): State<PgPool>, Json(message): Json<Message>) -> J
         .unwrap();
 
         Json(Message {
+            user_id: result.id,
             username: result.username,
             content: result.content,
             created_at: result.created_at,
