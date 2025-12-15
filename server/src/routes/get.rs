@@ -9,10 +9,12 @@ use axum::{extract::State, Json};
 /// create query to be sent to db
 use sqlx::query; 
 
-use crate::{}
+use crate::{schema::{User, Message}};
 
-///pool should be if connected to database
+
+
 pub async fn post(State(pool): State<Pool>, Json(message): Json<Message>) -> Json<Message> {
-    /// https://www.shuttle.dev/blog/2023/10/04/sql-in-rust for quering into db 
-    query!(message.username, message.content, message.created_at).execute(&pool).await.unwrap();
+    let message = query!(#what we want to query).fetch_all(&ConnectionState.db).await().unwrap();
+
+    Json(message)
 }

@@ -1,6 +1,7 @@
 use std::error::Error;
 use sqlx::{Row, PgPool};
 use sqlx::postgres;
+use sqlx::PgPool;
 
 use axum::{routing::{get, post},  Router};
 
@@ -24,17 +25,17 @@ struct ConnectionState {
 async fn main() -> Result<(), sqlx::Error> {
     let url = env::var("DATABASE_URL").unwrap();
     
-    /// for startup 
+    // for startup 
     let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).await?;
     
     sqlx::migrate!("./migrations").run(&pool).await?;
 
-    /// create state for pool and has to be owned so clone it 
+    // create state for pool and has to be owned so clone it 
     let state = ConnectionState{db: pool.clone()};
 
-    ///creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
+    //creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
     let app = Router::new().route("/health", get(health_check))
-        /// may only need this route for post and get 
+        // may only need this route for post and get 
         .route("/messages", post(create_message).get(get_all_messages))
         .with_state(pool.clone());
 
