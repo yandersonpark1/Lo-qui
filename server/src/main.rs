@@ -5,8 +5,8 @@ use sqlx::postgres;
 
 use axum::{routing::{get, post},  Router};
 
-mod get;
 mod routes;
+use routes::{get, post};
 mod schema;
 
 type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
