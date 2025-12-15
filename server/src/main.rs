@@ -7,36 +7,21 @@ use rand::Rng;
 
 use axum::{routing::{get, post},  Router};
 
-use sqlx::postgres;
 mod get;
+mod post;
 
 type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-#[derive(Debug)]
-pub struct Message {
-    pub user: User.unique_id
-    pub username: User.name
-    pub content: String,
-    pub created_at: String,
-}
 
-// Struct Defining Users Present
-#[derive(Debug)]
-struct User {
-    unique_id: i32,
-    pub name: String,
-}
-
-/// struct for connection state for api methods
-#[derive(Debug)]
+/// struct for connection state pool for api methods
+#[derive(Debug, Clone)]
 struct ConnectionState {
-    pub db: PgPoolOptions,  
+    pub db: PgPool,
 }
 
-//Active Users Defined as a Hashset
-static mut activeusers: HashSet<i32> = HashSet::<i32>;
 
-impl user {
+///may need to change this to allow DB to generate user IDs outside of Rust 
+impl User {
     pub fn new(username: String) -> SimpleResult<Self> {
         let mut rng = rand::rng();
         let mut userid: i32 = rng.random();
@@ -73,25 +58,25 @@ impl user {
 /// axum is working for our https method communicating between the backend and the database
 /// connects to database and creates our router
 #[tokio::main]
-async fn main() -> Result<(), sqlx::Error>> {
+async fn main() -> Result<(), sqlx::Error> {
     let url = env::var("DATABASE_URL").unwrap();
     
-    let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).context("Unable to connect to the database")?;
+    /// for startup 
+    let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).await?;
     
     sqlx::migrate!("./migrations").run(&pool).await?;
 
+    /// create state for pool and has to be owned so clone it 
+    let state = ConnectionState{db: pool.clone()};
+
     ///creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
-    let app = Router::new().route().with_state(&pool)
-        .route("/health", get(health_check))
+    let app = Router::new().route("/health", get(health_check))
         /// may only need this route for post and get 
         .route("/messages", post(message).get(message))
         .route("/users", get(list_users))
         .route("/users/{id}", get(get_user))
         // .route("/messages", get(move |mid| message_history(mid)))
-        .with_state(&pool);
-
-    let state = ConnectionState{db: &pool}
-
+        .with_state(pool.clone());
 
     Ok(())
 }

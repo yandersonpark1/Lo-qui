@@ -1,6 +1,6 @@
 ///Json needed to send message from frontend format to backend and then into database
 /// https://serde.rs/ used to serialize data for json format from frontend and backend 
-use serde::{Deserialize, Serialize}
+use serde::{Deserialize, Serialize};
 
 
 // Struct Defining Users Present
