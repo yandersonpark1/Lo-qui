@@ -8,12 +8,13 @@ use axum::{extract::State, Json};
 
 /// create query to be sent to db
 use sqlx::query; 
+use sqlx::PgPool;
 
 use crate::{schema::{User, Message}};
 
 
 
-pub async fn get(State(pool): State<Pool>, Json(message): Json<Message>) -> Json<Message> {
+pub async fn get(State(pool): State<PgPool>, Json(message): Json<Message>) -> Json<Message> {
     let message = query!("SELECT * FROM messages ORDER BY created_at DESC").fetch_all(&ConnectionState.db).await().unwrap();
 
     Json(message)
