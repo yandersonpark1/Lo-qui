@@ -8,12 +8,13 @@ use axum::{extract::State, Json};
 
 /// create query to be sent to db
 use sqlx::query; 
+use sqlx::PgPool;
 
 use crate::{schema::{User, Message}};
 
 ///pool should be if connected to database
-pub async fn post(State(pool): State<Pool>, Json(message): Json<Message>) -> Json<Message> {
-    /// https://www.shuttle.dev/blog/2023/10/04/sql-in-rust for quering into db 
+pub async fn post(State(pool): State<PgPool>, Json(message): Json<Message>) -> Json<Message> {
+    // https://www.shuttle.dev/blog/2023/10/04/sql-in-rust for quering into db 
     let result = query!(
             "INSERT INTO messages (username, content, created_at) 
             VALUES ($1, $2, $3) 
