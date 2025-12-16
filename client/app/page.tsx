@@ -90,7 +90,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen text-white">
       <form onSubmit={handleSubmit}>
-        <div className="fixed top-0 flex bg-black min-w-full z-10">
+        <div className="fixed top-0 flex justify-between bg-black min-w-full z-10">
           <label>
             Name:
             <input 
@@ -101,6 +101,9 @@ export default function Home() {
               onChange={(e) => setUsername(e.target.value)}
             />
           </label>
+          <div onClick={fetchMessages} className="m-5 px-4 py-2 border-2 border-white hover:bg-white hover:text-black transition-colors">
+            Reload
+          </div>
         </div>
         <div className="flex flex-col m-5 ml-2 mr-2 mt-20 mb-24">
           {messages.map((v) => 
