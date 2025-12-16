@@ -58,13 +58,8 @@ async fn main() -> Result<(), sqlx::Error> {
     let app = Router::new()
         // .route("/health", get(health_check))
         // may only need this route for post and get 
-<<<<<<< HEAD
         .route("/messages", post(post_method).get(get_all_messages))
-=======
-        .route("/messages", post(post_method))
-        // .get(get_method))
         .layer(cors)
->>>>>>> cedc6a6 (finished post request and allowed CORS)
         .with_state(pool.clone());
 
 
