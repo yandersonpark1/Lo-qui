@@ -64,20 +64,12 @@ async fn main() -> Result<(), sqlx::Error> {
         ])
         .allow_headers(Any);
 
+    // Creating router for Axum for chatroom HTTP methods
+    // Removed duplicate router - only one is needed
     let app = Router::new()
         .route("/messages", post(post_method).get(get_all_messages))
         .with_state(pool.clone())
         .layer(cors);
-    
-    //creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
-    let app = Router::new()
-        // .route("/health", get(health_check))
-        // may only need this route for post and get 
-        .route("/messages",post(post_method).get(get_all_messages))
-        .layer(cors)
-        .with_state(pool.clone());
-
-
 
     let port = std::env::var("PORT").unwrap();
     let addr = format!("0.0.0.0:{}", port);
@@ -87,7 +79,5 @@ async fn main() -> Result<(), sqlx::Error> {
         .await
         .unwrap();
 
-
     Ok(())
-
 }

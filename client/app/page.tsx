@@ -73,14 +73,13 @@ export default function Home() {
         const data = await response.json();
         console.log('Success:', data);
         
-        // Save username and only clear the content field
         setUsername(formUsername);
         const contentInput = form.querySelector('input[name="content"]') as HTMLInputElement;
         if (contentInput) {
           contentInput.value = '';
         }
         
-        fetchMessages(); // Refresh the message list
+        fetchMessages();
         
     } catch (error) {
         console.error('Fetch error:', error);
