@@ -63,8 +63,14 @@ async fn main() -> Result<(), sqlx::Error> {
 
 
 
-    axum::Server::bind(&"0.0.0.0:8080".parse()
-        .unwrap()).serve(app.into_make_service()).await.unwrap();
+    let port = std::env::var("PORT").unwrap();
+    let addr = format!("0.0.0.0:{}", port);
+
+    axum::Server::bind(&addr.parse().unwrap())
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+
 
     Ok(())
 
