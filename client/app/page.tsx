@@ -11,7 +11,7 @@ interface Message {
 }
 
 export default function Home() {
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState<string>(""); // Store username in state
