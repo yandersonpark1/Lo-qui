@@ -5,7 +5,8 @@ use dotenv::dotenv;
 use std::env;
 use tower_http::cors::CorsLayer;
 
-use axum::{Router, routing::post};
+
+use axum::{Router, routing::{post,get}};
 
 
 mod routes;
@@ -57,7 +58,7 @@ async fn main() -> Result<(), sqlx::Error> {
     let app = Router::new()
         // .route("/health", get(health_check))
         // may only need this route for post and get 
-        .route("/messages", post(post_method).get(get_all_messages))
+        .route("/messages",post(post_method).get(get_all_messages))
         .layer(cors)
         .with_state(pool.clone());
 
