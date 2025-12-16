@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import messages from "./data"
 import Messages from "./components/message";
 
@@ -11,6 +10,11 @@ export default function Home() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView();
   }, []);
+
+  // GET request
+  const handleRequest = async () => {
+    
+  }
 
   // POST request
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
