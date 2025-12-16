@@ -3,8 +3,9 @@ use sqlx::{PgPool};
 
 use dotenv::dotenv;
 use std::env;
+use tower_http::cors::CorsLayer;
 
-use axum::{routing::{post},  Router};
+use axum::{Router, routing::post};
 
 
 mod routes;
@@ -47,15 +48,29 @@ async fn main() -> Result<(), sqlx::Error> {
     // create state for pool and has to be owned so clone it 
     let state = ConnectionState{db: pool.clone()};
 
+    // Allow localhost:3000 specifically
+    let cors = CorsLayer::new()
+        .allow_origin("http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap())
+        .allow_methods(tower_http::cors::Any)
+        .allow_headers(tower_http::cors::Any);
+    
     //creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
     let app = Router::new()
         // .route("/health", get(health_check))
         // may only need this route for post and get 
+<<<<<<< HEAD
         .route("/messages", post(post_method).get(get_all_messages))
+=======
+        .route("/messages", post(post_method))
+        // .get(get_method))
+        .layer(cors)
+>>>>>>> cedc6a6 (finished post request and allowed CORS)
         .with_state(pool.clone());
 
-    //to run the server
-    axum::Server::bind(&"0.0.0.0:3000".parse()
+
+
+    //to run the server - CHANGED PORT TO 8080
+    axum::Server::bind(&"127.0.0.1:8080".parse()
         .unwrap()).serve(app.into_make_service()).await.unwrap();
 
     Ok(())

@@ -49,26 +49,6 @@ main {
   animation: blinkTextCursor 500ms infinite normal;
 }
 
-/* Animation */
-.anim-typewriter {
-}
-@keyframes typewriter {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
-@keyframes blinkTextCursor {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .crt {
   background-color: rgb(25, 25, 30);
   text-shadow: 0 0 0.2em currentColor, 1px 1px rgba(255, 0, 255, 0.5),

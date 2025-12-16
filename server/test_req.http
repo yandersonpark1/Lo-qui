@@ -1,4 +1,4 @@
-POST http://localhost:3000/messages
+POST http://localhost:5000/messages
 Content-Type: application/json
 
 {
