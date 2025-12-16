@@ -101,7 +101,7 @@ export default function Home() {
               onChange={(e) => setUsername(e.target.value)}
             />
           </label>
-          <div onClick={fetchMessages} className="m-5 px-4 py-2 border-2 border-white hover:bg-white hover:text-black transition-colors">
+          <div onClick={fetchMessages} className="m-2 px-2 py-1 border-2 border-white hover:bg-white hover:text-black transition-colors">
             Reload
           </div>
         </div>
