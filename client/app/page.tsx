@@ -1,20 +1,43 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import messages from "./data"
+import { useEffect, useRef, useState } from "react";
 import Messages from "./components/message";
+
+interface Message {
+  id: number;
+  username: string;
+  content: string;
+  created_at: string;
+}
 
 export default function Home() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [username, setUsername] = useState<string>(""); // Store username in state
 
+  // Fetch messages on component mount
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView();
+    fetchMessages();
   }, []);
 
-  // GET request
-  const handleRequest = async () => {
-    
-  }
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/messages');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Reverse the messages so newest is at bottom
+      setMessages(data.messages.reverse());
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
 
   // POST request
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,14 +72,20 @@ export default function Home() {
         const data = await response.json();
         console.log('Success:', data);
         
-        // Clear the content field after successful submission
-        form.reset(); // Use the stored form reference instead of e.currentTarget
+        // Save username and only clear the content field
+        setUsername(formUsername);
+        const contentInput = form.querySelector('input[name="content"]') as HTMLInputElement;
+        if (contentInput) {
+          contentInput.value = '';
+        }
+        
+        fetchMessages(); // Refresh the message list
         
     } catch (error) {
         console.error('Fetch error:', error);
         alert(`Failed to send message: ${error}`);
     }
-};
+  };
 
   return (
     <div className="flex flex-col min-h-screen text-white">
@@ -64,12 +93,23 @@ export default function Home() {
         <div className="fixed top-0 flex bg-black min-w-full z-10">
           <label>
             Name:
-            <input type="text" name="username" className="border-white"/>
+            <input 
+              type="text" 
+              name="username" 
+              className="border-white"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </label>
         </div>
         <div className="flex flex-col m-5 ml-2 mr-2 mt-20 mb-24">
           {messages.map((v) => 
-            <Messages key={v.id} data={v}/>
+            <Messages key={v.id} data={{
+              id: v.id,
+              username: v.username,
+              content: v.content,
+              timestamp: v.created_at
+            }}/>
           )}
           <div ref={messagesEndRef} />
         </div>
