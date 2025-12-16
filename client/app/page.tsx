@@ -11,6 +11,7 @@ interface Message {
 }
 
 export default function Home() {
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState<string>(""); // Store username in state
@@ -27,7 +28,7 @@ export default function Home() {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch('http://localhost:8080/messages');
+      const response = await fetch(`${BACKEND_URL}/messages`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -54,7 +55,7 @@ export default function Home() {
     }
     
     try {
-        const response = await fetch('http://localhost:8080/messages', {
+        const response = await fetch(`${BACKEND_URL}/messages`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
