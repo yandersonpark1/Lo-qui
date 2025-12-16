@@ -49,12 +49,7 @@ async fn main() -> Result<(), sqlx::Error> {
     .unwrap();
 
     let cors = CorsLayer::new()
-        .allow_origin(
-            allowed_origins
-                .split(',')
-                .map(|s| s.trim().parse::<HeaderValue>().unwrap())
-                .collect::<Vec<_>>()
-        )
+        .allow_origin(Any)
         .allow_methods([
             Method::GET,
             Method::POST,
@@ -65,11 +60,10 @@ async fn main() -> Result<(), sqlx::Error> {
         .allow_headers(Any);
 
     // Creating router for Axum for chatroom HTTP methods
-    // Removed duplicate router - only one is needed
     let app = Router::new()
         .route("/messages", post(post_method).get(get_all_messages))
-        .with_state(pool.clone())
-        .layer(cors);
+        .layer(cors)
+        .with_state(pool.clone());
 
     let port = std::env::var("PORT").unwrap();
     let addr = format!("0.0.0.0:{}", port);
