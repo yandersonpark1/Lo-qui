@@ -1,25 +1,81 @@
-// // https://docs.rs/axum/latest/axum/extract/struct.State.html
-// https://docs.rs/sqlx-build-trust/latest/sqlx_build_trust/fn.query_as.html
+// use crate::SimpleResult;
+use axum::{
+    Router, 
+    response::IntoResponse, 
+    routing::get,
+    extract::{Path, State},
+    Json,
+    http::StatusCode,
+};
+use serde_json::{json, Value};
+use sqlx::{Pool, Postgres, Row};
+use std::sync::Arc;
 
-// // https://www.youtube.com/watch?v=7RlVM0D4CEA explanation of taking json payload from client to store into database
-// // for put method 
+use sqlx::PgPool;
 
-// // ///extract state from Axum 
-// use axum::{extract::State, Json};
+#[derive(Debug)]
+pub enum ApiError {
+    NotFound,
+    InvalidInput(String),
+    InternalErr,
+}
 
-// // /// create query to be sent to db
-// use sqlx::query_as; 
-// use sqlx::PgPool;
+// Create A set list of possible errors to be found given the related issue in the server
+// ApiError::NotFound : Attempted to draw from something that does not exist
+// ApiError::InvalidInput(error) : Attempted to input something the server does not understand
+// ApiError::InternalErr : Internal Server Error (for example, not running)
+impl IntoResponse for ApiError {
+    fn into_response(self) -> axum::response::Response {
+        let (status, error_message) = match self {
+            ApiError::NotFound => (StatusCode::NOT_FOUND, "Data not found".to_string()),
+            ApiError::InvalidInput(error) => (StatusCode::BAD_REQUEST, error),
+            ApiError::InternalErr => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error".to_string()),
+        };
 
-// use crate::{schema::{User, Message}};
+        let body = Json(json!({
+            "error": error_message
+        }));
 
+        (status, body).into_response()
+    }
+}
 
-// query! for database time connection at compile time vs after b/c of .env 
-// pub async fn get_method(State(pool): State<PgPool>, Json(message): Json<Message>) -> Json<Message> {
-//     // use query_as returns string value 
-//     let res = query_as("SELECT content FROM messages ORDER BY created_at DESC LIMIT 1").fetch_one(&pool).await.unwrap();
+// #[derive(Clone)]
+// struct AppState {
+//     db: Pool<Postgres>,
+// }
 
-//     Json(Message {
-//             content: res,
-//         })
+async fn health_check() -> impl IntoResponse {
+    Json(json!({
+        "status": "ok",
+        "message": "Server is running"
+    }))
+}
+
+// GET all messages
+pub async fn get_all_messages(State(pool): State<PgPool>) -> Result<Json<Value>, ApiError> {
+    let rows = sqlx::query("SELECT id, username, content, created_at FROM messages ORDER BY created_at DESC")
+        .fetch_all(&pool)
+        .await
+        .map_err(|_| ApiError::InternalErr)?;
+    
+    let messages: Vec<Value> = rows.into_iter().map(|row| {
+        json!({
+            "id": row.get::<i32, _>("id"),
+            "username": row.get::<String, _> ("username"),
+            "content": row.get::<String, _>("content"),
+            "created_at": row.get::<chrono::NaiveDateTime, _>("created_at").to_string(),
+        })
+    }).collect();
+
+    Ok(Json(json!({ "messages": messages })))
+}
+
+// pub fn get_router(db: Pool<Postgres>) -> Router {
+//     let state = Arc::new(AppState { db });
+    
+//     Router::new()
+//         .route("/health", get(health_check))
+//         .route("/messages", get(get_all_messages))
+//         .with_state(state)
 // }

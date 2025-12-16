@@ -8,9 +8,9 @@ use axum::{routing::{post},  Router};
 
 
 mod routes;
-use routes::{post::post_method};
+use routes::{post::post_method, get::get_all_messages};
 
-//readd for get get::get_method,
+
 
 mod schema;
 
@@ -51,8 +51,7 @@ async fn main() -> Result<(), sqlx::Error> {
     let app = Router::new()
         // .route("/health", get(health_check))
         // may only need this route for post and get 
-        .route("/messages", post(post_method))
-        // .get(get_method))
+        .route("/messages", post(post_method).get(get_all_messages))
         .with_state(pool.clone());
 
     //to run the server
