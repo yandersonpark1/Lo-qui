@@ -1,13 +1,12 @@
-use sqlx::{PgPool};
-// use sqlx::postgres;
-
+use sqlx::PgPool;
 use dotenv::dotenv;
 use std::env;
-use tower_http::cors::CorsLayer;
-
-
-use axum::{Router, routing::{post,get}};
-
+use tower_http::cors::{CorsLayer, Any};
+use axum::{
+    Router, 
+    routing::{post, get},
+    http::{Method, HeaderValue}
+};
 
 mod routes;
 use routes::{post::post_method, get::get_all_messages};
@@ -47,12 +46,28 @@ async fn main() -> Result<(), sqlx::Error> {
     let state = ConnectionState{db: pool.clone()};
 
     let allowed_origins = env::var("ALLOWED_ORIGINS")
-        .unwrap_or_else(|_| "http://localhost:3000".to_string());
+    .unwrap();
 
     let cors = CorsLayer::new()
-        .allow_origin(allowed_origins.parse::<axum::http::HeaderValue>().unwrap())
-        .allow_methods(tower_http::cors::Any)
-        .allow_headers(tower_http::cors::Any);
+        .allow_origin(
+            allowed_origins
+                .split(',')
+                .map(|s| s.trim().parse::<HeaderValue>().unwrap())
+                .collect::<Vec<_>>()
+        )
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_headers(Any);
+
+    let app = Router::new()
+        .route("/messages", post(post_method).get(get_all_messages))
+        .with_state(pool.clone())
+        .layer(cors);
     
     //creating router for Axum for chatroom HTTP methods; https://docs.rs/axum/latest/axum/routing/struct.Router.html
     let app = Router::new()

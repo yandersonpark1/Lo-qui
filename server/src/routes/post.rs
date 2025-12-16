@@ -25,7 +25,6 @@ pub async fn post_method(State(pool): State<PgPool>, Json(message): Json<InitMes
         .fetch_one(&pool)
         .await
         .unwrap();
-
         Json(Message {
             content: message.content,
         })
