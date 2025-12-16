@@ -10,9 +10,6 @@ use axum::{Router, routing::post};
 
 mod routes;
 use routes::{post::post_method, get::get_all_messages};
-
-
-
 mod schema;
 
 // type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -48,7 +45,6 @@ async fn main() -> Result<(), sqlx::Error> {
     // create state for pool and has to be owned so clone it 
     let state = ConnectionState{db: pool.clone()};
 
-    // Allow localhost:3000 specifically
     let cors = CorsLayer::new()
         .allow_origin("http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap())
         .allow_methods(tower_http::cors::Any)
@@ -64,7 +60,6 @@ async fn main() -> Result<(), sqlx::Error> {
 
 
 
-    //to run the server - CHANGED PORT TO 8080
     axum::Server::bind(&"127.0.0.1:8080".parse()
         .unwrap()).serve(app.into_make_service()).await.unwrap();
 
