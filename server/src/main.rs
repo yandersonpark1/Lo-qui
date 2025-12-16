@@ -45,8 +45,11 @@ async fn main() -> Result<(), sqlx::Error> {
     // create state for pool and has to be owned so clone it 
     let state = ConnectionState{db: pool.clone()};
 
+    let allowed_origins = env::var("ALLOWED_ORIGINS")
+        .unwrap_or_else(|_| "http://localhost:3000".to_string());
+
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap())
+        .allow_origin(allowed_origins.parse::<axum::http::HeaderValue>().unwrap())
         .allow_methods(tower_http::cors::Any)
         .allow_headers(tower_http::cors::Any);
     
@@ -60,7 +63,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
 
 
-    axum::Server::bind(&"127.0.0.1:8080".parse()
+    axum::Server::bind(&"0.0.0.0:8080".parse()
         .unwrap()).serve(app.into_make_service()).await.unwrap();
 
     Ok(())
