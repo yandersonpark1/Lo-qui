@@ -8,3 +8,5 @@ tokio = { version = "1", features = ["full"] }
 axum = "0.6.17"
 sqlx = {version = "0.6.3", features = ["runtime-tokio-rustls", "postgres", "macros", "time"]} 
 serde = "1.0.228"
+axum-server = "0.8.0"
+dotenv = "0.15.0"
