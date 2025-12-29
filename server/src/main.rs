@@ -1,6 +1,8 @@
 use sqlx::PgPool;
+
 use dotenv::dotenv;
 use std::env;
+
 use tower_http::cors::{CorsLayer, Any};
 use axum::{
     Router, 
@@ -8,9 +10,10 @@ use axum::{
     http::{Method, HeaderValue}
 };
 
+mod schema;
 mod routes;
 use routes::{post::post_method, get::get_all_messages};
-mod schema;
+
 
 // type SimpleResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -30,24 +33,21 @@ struct ConnectionState {
 async fn main() -> Result<(), sqlx::Error> {
     dotenv().ok();
 
-    let url = env::var("DATABASE_URL").unwrap();
+    let url = env::var("DATABASE_URL").expect("Database_URL not set");
     
     // for startup 
     let pool = sqlx::postgres::PgPoolOptions::new().connect(&url).await?;
 
     // check for connection
-    // sqlx::query("Select 1").execute(&pool).await?;
-
-    // println!("Database connection good");
+    sqlx::query("Select 1").execute(&pool).await?;
+    println!("Database connection good");
     
     sqlx::migrate!("./migrations").run(&pool).await?;
 
-    // create state for pool and has to be owned so clone it 
-    let state = ConnectionState{db: pool.clone()};
+    // let allowed_origins = env::var("ALLOWED_ORIGINS")
+    // .unwrap();
 
-    let allowed_origins = env::var("ALLOWED_ORIGINS")
-    .unwrap();
-
+    // middleware allows frontend and backend to communicate
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods([
@@ -65,10 +65,14 @@ async fn main() -> Result<(), sqlx::Error> {
         .layer(cors)
         .with_state(pool.clone());
 
+    // port number 
     let port = std::env::var("PORT").unwrap();
-    let addr = format!("0.0.0.0:{}", port);
+
+    //socket address server listens to 
+    let addr = format!("127.0.0.1:{}", port);
 
     axum::Server::bind(&addr.parse().unwrap())
+        // axum router to HTTP server
         .serve(app.into_make_service())
         .await
         .unwrap();
